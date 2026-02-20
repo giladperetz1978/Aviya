@@ -36,6 +36,34 @@
           <p>שעות עבודה: <strong id="workHours">00:00:00</strong></p>
           <p>שעות בעל הבית השתגע: <strong id="crazyHours">00:00:00</strong></p>
         </div>
+
+        <button id="toggleEditBtn" class="btn btn-edit" type="button">תיקון / עריכת נתוני היום</button>
+
+        <form id="editForm" class="edit-form hidden">
+          <label>
+            שימורים מוצלחים
+            <input id="editSuccess" type="number" min="0" step="1" inputmode="numeric" required />
+          </label>
+
+          <label>
+            שימורים לא מוצלחים
+            <input id="editFail" type="number" min="0" step="1" inputmode="numeric" required />
+          </label>
+
+          <label>
+            שעות עבודה (HH:MM:SS)
+            <input id="editWork" type="text" placeholder="08:30:00" required />
+          </label>
+
+          <label>
+            שעות בעל הבית השתגע (HH:MM:SS)
+            <input id="editCrazy" type="text" placeholder="01:15:00" required />
+          </label>
+
+          <button id="applyEditBtn" class="btn btn-apply-edit" type="submit">שמירת תיקון</button>
+        </form>
+
+        <button id="lockDayBtn" class="btn btn-lock-day" type="button">שמירת היום (נעילה)</button>
       </section>
 
       <button id="openSummaryBtn" class="btn btn-summary">סיכום יומי</button>

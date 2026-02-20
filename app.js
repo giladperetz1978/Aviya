@@ -14,6 +14,14 @@ const elements = {
   successRate: document.getElementById("successRate"),
   workHours: document.getElementById("workHours"),
   crazyHours: document.getElementById("crazyHours"),
+  toggleEditBtn: document.getElementById("toggleEditBtn"),
+  editForm: document.getElementById("editForm"),
+  editSuccess: document.getElementById("editSuccess"),
+  editFail: document.getElementById("editFail"),
+  editWork: document.getElementById("editWork"),
+  editCrazy: document.getElementById("editCrazy"),
+  applyEditBtn: document.getElementById("applyEditBtn"),
+  lockDayBtn: document.getElementById("lockDayBtn"),
   cryOverlay: document.getElementById("cryOverlay"),
   openSummaryBtn: document.getElementById("openSummaryBtn"),
   summaryDialog: document.getElementById("summaryDialog"),
@@ -36,6 +44,10 @@ setInterval(refreshUI, 1000);
 function bindEvents() {
   elements.successBtn.addEventListener("click", () => {
     const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     day.success += 1;
     saveState();
     launchConfetti();
@@ -44,6 +56,10 @@ function bindEvents() {
 
   elements.failBtn.addEventListener("click", () => {
     const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     day.fail += 1;
     saveState();
     showCryOverlay();
@@ -52,6 +68,10 @@ function bindEvents() {
 
   elements.shiftStartBtn.addEventListener("click", () => {
     const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     if (day.shiftStartTs) {
       alert("משמרת כבר התחילה.");
       return;
@@ -62,6 +82,10 @@ function bindEvents() {
   });
 
   elements.shiftEndBtn.addEventListener("click", () => {
+    if (getTodayRecord().locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     if (!confirm("לסיים יום עבודה?")) {
       return;
     }
@@ -70,6 +94,10 @@ function bindEvents() {
 
   elements.crazyStartBtn.addEventListener("click", () => {
     const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     if (!day.shiftStartTs) {
       const startShift = confirm("אין משמרת פעילה. להתחיל משמרת עכשיו?");
       if (!startShift) {
@@ -89,10 +117,95 @@ function bindEvents() {
   });
 
   elements.crazyEndBtn.addEventListener("click", () => {
+    if (getTodayRecord().locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
     if (!confirm("לסיים 'בעל הבית השתגע' וגם לסיים את יום העבודה?")) {
       return;
     }
     endCrazyAndCloseDay();
+  });
+
+  elements.toggleEditBtn.addEventListener("click", () => {
+    const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לערוך.");
+      return;
+    }
+
+    const isHidden = elements.editForm.classList.contains("hidden");
+    if (isHidden) {
+      loadEditFormFromDay(day);
+      elements.editForm.classList.remove("hidden");
+      elements.toggleEditBtn.textContent = "סגירת עריכה";
+    } else {
+      elements.editForm.classList.add("hidden");
+      elements.toggleEditBtn.textContent = "תיקון / עריכת נתוני היום";
+    }
+  });
+
+  elements.editForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לערוך.");
+      return;
+    }
+
+    const success = Number(elements.editSuccess.value);
+    const fail = Number(elements.editFail.value);
+    const workMs = parseDurationText(elements.editWork.value);
+    const crazyMs = parseDurationText(elements.editCrazy.value);
+
+    if (!Number.isInteger(success) || success < 0 || !Number.isInteger(fail) || fail < 0) {
+      alert("כמויות שימורים חייבות להיות מספרים שלמים ולא שליליים.");
+      return;
+    }
+
+    if (workMs === null || crazyMs === null) {
+      alert("פורמט שעות חייב להיות HH:MM:SS (למשל 08:30:00).");
+      return;
+    }
+
+    day.success = success;
+    day.fail = fail;
+    day.shiftDurationMs = workMs;
+    day.crazyDurationMs = crazyMs;
+    day.shiftStartTs = null;
+    day.crazyStartTs = null;
+
+    saveState();
+    refreshUI();
+    alert("הנתונים עודכנו בהצלחה.");
+  });
+
+  elements.lockDayBtn.addEventListener("click", () => {
+    const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום כבר נשמר וננעל.");
+      return;
+    }
+
+    if (!confirm("לאשר שמירת יום? לאחר שמירה לא ניתן יהיה לשנות את הנתונים.")) {
+      return;
+    }
+
+    const nowTs = Date.now();
+    if (day.shiftStartTs) {
+      day.shiftDurationMs += nowTs - day.shiftStartTs;
+      day.shiftStartTs = null;
+    }
+    if (day.crazyStartTs) {
+      day.crazyDurationMs += nowTs - day.crazyStartTs;
+      day.crazyStartTs = null;
+    }
+
+    day.locked = true;
+    day.lockedAt = nowTs;
+    saveState();
+    refreshUI();
+    alert("היום נשמר וננעל בהצלחה.");
   });
 
   elements.openSummaryBtn.addEventListener("click", () => {
@@ -130,9 +243,19 @@ function ensureDay(dateKey) {
       shiftDurationMs: 0,
       crazyDurationMs: 0,
       shiftStartTs: null,
-      crazyStartTs: null
+      crazyStartTs: null,
+      locked: false,
+      lockedAt: null
     };
     saveState();
+  } else {
+    const day = state.days[dateKey];
+    if (typeof day.locked !== "boolean") {
+      day.locked = false;
+    }
+    if (!("lockedAt" in day)) {
+      day.lockedAt = null;
+    }
   }
 }
 
@@ -164,6 +287,26 @@ function refreshUI() {
 
   elements.workHours.textContent = formatDuration(day.shiftDurationMs + extraShiftMs);
   elements.crazyHours.textContent = formatDuration(day.crazyDurationMs + extraCrazyMs);
+
+  const isLocked = !!day.locked;
+  elements.successBtn.disabled = isLocked;
+  elements.failBtn.disabled = isLocked;
+  elements.shiftStartBtn.disabled = isLocked;
+  elements.shiftEndBtn.disabled = isLocked;
+  elements.crazyStartBtn.disabled = isLocked;
+  elements.crazyEndBtn.disabled = isLocked;
+  elements.toggleEditBtn.disabled = isLocked;
+  elements.applyEditBtn.disabled = isLocked;
+
+  if (isLocked) {
+    elements.editForm.classList.add("hidden");
+    elements.toggleEditBtn.textContent = "תיקון / עריכת נתוני היום";
+    elements.lockDayBtn.textContent = "היום נשמר וננעל";
+    elements.lockDayBtn.disabled = true;
+  } else {
+    elements.lockDayBtn.textContent = "שמירת היום (נעילה)";
+    elements.lockDayBtn.disabled = false;
+  }
 }
 
 function endShiftForToday() {
@@ -215,6 +358,34 @@ function formatDuration(ms) {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function parseDurationText(text) {
+  const normalized = String(text || "").trim();
+  const match = normalized.match(/^(\d+):(\d{2}):(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const seconds = Number(match[3]);
+
+  if (minutes > 59 || seconds > 59) {
+    return null;
+  }
+
+  return ((hours * 60 + minutes) * 60 + seconds) * 1000;
+}
+
+function loadEditFormFromDay(day) {
+  const extraShiftMs = day.shiftStartTs ? Date.now() - day.shiftStartTs : 0;
+  const extraCrazyMs = day.crazyStartTs ? Date.now() - day.crazyStartTs : 0;
+
+  elements.editSuccess.value = String(day.success);
+  elements.editFail.value = String(day.fail);
+  elements.editWork.value = formatDuration(day.shiftDurationMs + extraShiftMs);
+  elements.editCrazy.value = formatDuration(day.crazyDurationMs + extraCrazyMs);
 }
 
 function launchConfetti() {
