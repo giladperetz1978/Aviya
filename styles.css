@@ -27,6 +27,14 @@ h1 {
   text-align: center;
 }
 
+.subtitle {
+  margin: 4px 0 12px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #e11d48;
+  font-weight: 700;
+}
+
 .current-date {
   text-align: center;
   margin: 8px 0 16px;
