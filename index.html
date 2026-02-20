@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>אביה המשמרת</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1>אביה המשמרת</h1>
+      <p id="currentDate" class="current-date"></p>
+
+      <section class="button-row retention-row">
+        <button id="successBtn" class="btn btn-success">שימור מוצלח</button>
+        <button id="failBtn" class="btn btn-fail">שימור לא מוצלח</button>
+      </section>
+
+      <section class="button-row shift-row">
+        <button id="shiftStartBtn" class="btn btn-shift-start">תחילת משמרת</button>
+        <button id="shiftEndBtn" class="btn btn-shift-end">סוף משמרת</button>
+      </section>
+
+      <section class="button-row crazy-row">
+        <button id="crazyStartBtn" class="btn btn-crazy-start">🤪🎩 התחלת בעל הבית השתגע</button>
+        <button id="crazyEndBtn" class="btn btn-crazy-end">🕺🤡 סיום בעל הבית השתגע</button>
+      </section>
+
+      <section class="summary" aria-live="polite">
+        <h2>סיכום יומי</h2>
+        <div class="summary-grid">
+          <p>סה"כ שימורים: <strong id="totalCount">0</strong></p>
+          <p>שימורים מוצלחים: <strong id="successCount">0</strong></p>
+          <p>שימורים לא מוצלחים: <strong id="failCount">0</strong></p>
+          <p>אחוזי הצלחה: <strong id="successRate">0%</strong></p>
+          <p>שעות עבודה: <strong id="workHours">00:00:00</strong></p>
+          <p>שעות בעל הבית השתגע: <strong id="crazyHours">00:00:00</strong></p>
+        </div>
+      </section>
+
+      <button id="openSummaryBtn" class="btn btn-summary">סיכום יומי</button>
+    </main>
+
+    <div id="cryOverlay" class="cry-overlay" aria-hidden="true">😭</div>
+
+    <dialog id="summaryDialog" class="summary-dialog">
+      <form method="dialog" class="dialog-header">
+        <h3>סיכום חודשי והיסטוריית סיכומים</h3>
+        <button class="close-btn" value="cancel">סגירה</button>
+      </form>
+
+      <label for="monthPicker">בחירת חודש:</label>
+      <input id="monthPicker" type="month" />
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>תאריך</th>
+              <th>סה"כ</th>
+              <th>מוצלחים</th>
+              <th>לא מוצלחים</th>
+              <th>אחוז הצלחה</th>
+              <th>שעות עבודה</th>
+              <th>שעות בעל הבית</th>
+            </tr>
+          </thead>
+          <tbody id="summaryTableBody"></tbody>
+          <tfoot id="summaryTableFoot"></tfoot>
+        </table>
+      </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
