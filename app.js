@@ -1,6 +1,9 @@
 const STORAGE_KEY = "aviya-shift-tracker-v1";
 const MAX_SHIFT_HOURS_DISPLAY = 12;
 
+let audioContext = null;
+let soundLibrary = {};
+
 const elements = {
   currentDate: document.getElementById("currentDate"),
   successBtn: document.getElementById("successBtn"),
@@ -35,7 +38,9 @@ const elements = {
   monthPicker: document.getElementById("monthPicker"),
   summaryTableBody: document.getElementById("summaryTableBody"),
   summaryTableFoot: document.getElementById("summaryTableFoot"),
-  tabsCapacityInfo: document.getElementById("tabsCapacityInfo")
+  tabsCapacityInfo: document.getElementById("tabsCapacityInfo"),
+  moneyAnimationOverlay: document.getElementById("moneyAnimationOverlay"),
+  soundEffect: document.getElementById("soundEffect")
 };
 
 const now = new Date();
@@ -49,6 +54,7 @@ bindEvents();
 refreshUI();
 setInterval(refreshUI, 1000);
 window.addEventListener("resize", updateTabsCapacityInfo);
+initAudioContext();
 
 function bindEvents() {
   elements.successBtn.addEventListener("click", () => {
@@ -59,6 +65,7 @@ function bindEvents() {
     }
     day.success += 1;
     saveState();
+    playSound("money");
     launchConfetti();
     refreshUI();
   });
@@ -71,6 +78,7 @@ function bindEvents() {
     }
     day.fail += 1;
     saveState();
+    playSound("disappointment");
     showCryOverlay();
     refreshUI();
   });
@@ -123,10 +131,12 @@ function bindEvents() {
       if (!confirm("לסיים משמרת?")) {
         return;
       }
+      playSound("celebration");
       endShiftForToday();
       return;
     }
 
+    playSound("celebration");
     day.shiftStartTs = Date.now();
     saveState();
     refreshUI();
@@ -143,6 +153,7 @@ function bindEvents() {
       if (!confirm("לסיים 'בעל הבית השתגע'?")) {
         return;
       }
+      playSound("celebration");
       endCrazyForToday();
       return;
     }
@@ -155,6 +166,7 @@ function bindEvents() {
       day.shiftStartTs = Date.now();
     }
 
+    playSound("celebration");
     day.crazyStartTs = Date.now();
     saveState();
     refreshUI();
@@ -627,4 +639,100 @@ function renderSummaryTable(monthValue) {
       <td>-</td>
     </tr>
   `;
+}
+
+function initAudioContext() {
+  if (audioContext) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioContextClass();
+  } catch (e) {
+    console.warn("Web Audio API not supported", e);
+  }
+}
+
+function playSound(soundType) {
+  if (!audioContext) return;
+
+  try {
+    if (soundType === "money") {
+      playMoneySound();
+    } else if (soundType === "celebration") {
+      playCelebrationSound();
+    } else if (soundType === "disappointment") {
+      playDisappointmentSound();
+    }
+  } catch (e) {
+    console.warn("Error playing sound", e);
+  }
+}
+
+function playMoneySound() {
+  const ctx = audioContext;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  gain.gain.setValueAtTime(0.3, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+  osc.frequency.setValueAtTime(800, now);
+  osc.frequency.exponentialRampToValueAtTime(600, now + 0.05);
+  osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+
+  osc.start(now);
+  osc.stop(now + 0.2);
+}
+
+function playCelebrationSound() {
+  const ctx = audioContext;
+  const now = ctx.currentTime;
+
+  for (let i = 0; i < 2; i++) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    const startTime = now + i * 0.15;
+    const freq = i === 0 ? 600 : 800;
+
+    gain.gain.setValueAtTime(0.25, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.12);
+
+    osc.frequency.setValueAtTime(freq, startTime);
+    osc.start(startTime);
+    osc.stop(startTime + 0.12);
+  }
+}
+
+function playDisappointmentSound() {
+  const ctx = audioContext;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  gain.gain.setValueAtTime(0.25, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+  osc.frequency.setValueAtTime(500, now);
+  osc.frequency.exponentialRampToValueAtTime(300, now + 0.4);
+
+  osc.start(now);
+  osc.stop(now + 0.4);
+}
+
+function showMoneyAnimation() {
+  if (!elements.moneyAnimationOverlay) return;
+
+  elements.moneyAnimationOverlay.classList.add("show");
+  setTimeout(() => {
+    elements.moneyAnimationOverlay.classList.remove("show");
+  }, 800);
 }
