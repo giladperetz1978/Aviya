@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>אביה המשמרת</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=5" />
   </head>
   <body>
     <main class="app">
@@ -17,28 +17,37 @@
         <button id="failBtn" class="btn btn-fail">שימור לא מוצלח</button>
       </section>
 
-      <section class="button-row shift-row">
-        <button id="shiftStartBtn" class="btn btn-shift-start">תחילת משמרת</button>
-        <button id="shiftEndBtn" class="btn btn-shift-end">סוף משמרת</button>
+      <section class="button-row toggle-row">
+        <button id="crazyToggleBtn" class="btn btn-crazy-start">תחילת בעל הבית השתגע</button>
+        <button id="shiftToggleBtn" class="btn btn-shift-start">תחילת משמרת</button>
       </section>
 
-      <section class="button-row crazy-row">
-        <button id="crazyStartBtn" class="btn btn-crazy-start">🤪🎩 התחלת בעל הבית השתגע</button>
-        <button id="crazyEndBtn" class="btn btn-crazy-end">🕺🤡 סיום בעל הבית השתגע</button>
+      <section class="sales-section" aria-label="מכר">
+        <h3 class="sales-title">מכר</h3>
+        <div class="sales-tabs">
+          <button id="internet15Btn" class="btn btn-sales" type="button">אינטרנט 15</button>
+          <button id="range15Btn" class="btn btn-sales" type="button">מגדיל טווח 15</button>
+          <button id="tv15Btn" class="btn btn-sales" type="button">טלוויזיה 15</button>
+          <button id="callsPerHourBtn" class="btn btn-sales" type="button">מספר שיחות לשעה</button>
+        </div>
       </section>
 
       <section class="summary" aria-live="polite">
-        <h2>סיכום יומי</h2>
-        <div class="summary-grid">
-          <p>סה"כ שימורים: <strong id="totalCount">0</strong></p>
-          <p>שימורים מוצלחים: <strong id="successCount">0</strong></p>
-          <p>שימורים לא מוצלחים: <strong id="failCount">0</strong></p>
-          <p>אחוזי הצלחה: <strong id="successRate">0%</strong></p>
-          <p>שעות עבודה: <strong id="workHours">00:00:00</strong></p>
-          <p>שעות בעל הבית השתגע: <strong id="crazyHours">00:00:00</strong></p>
-        </div>
-
-        <button id="toggleEditBtn" class="btn btn-edit" type="button">תיקון / עריכת נתוני היום</button>
+        <h2 class="summary-title">סיכום יומי</h2>
+        <table class="summary-table" aria-label="סיכום יומי">
+          <tbody>
+            <tr><td>סה"כ שימורים</td><td><strong id="totalCount">0</strong></td></tr>
+            <tr><td>שימורים מוצלחים</td><td><strong id="successCount">0</strong></td></tr>
+            <tr><td>שימורים לא מוצלחים</td><td><strong id="failCount">0</strong></td></tr>
+            <tr><td>אחוזי הצלחה</td><td><strong id="successRate">0%</strong></td></tr>
+            <tr><td>שעות עבודה</td><td><strong id="workHours">00:00:00</strong></td></tr>
+            <tr><td>שעות בעל הבית השתגע</td><td><strong id="crazyHours">00:00:00</strong></td></tr>
+            <tr><td>מכר אינטרנט 15</td><td><strong id="internet15Count">0</strong></td></tr>
+            <tr><td>מכר מגדיל טווח 15</td><td><strong id="range15Count">0</strong></td></tr>
+            <tr><td>מכר טלוויזיה 15</td><td><strong id="tv15Count">0</strong></td></tr>
+            <tr><td>שיחות לפי שעה</td><td><div id="callsByHourGrid" class="calls-by-hour-grid" aria-label="שיחות לפי שעה"></div></td></tr>
+          </tbody>
+        </table>
 
         <form id="editForm" class="edit-form hidden">
           <label>
@@ -63,11 +72,16 @@
 
           <button id="applyEditBtn" class="btn btn-apply-edit" type="submit">שמירת תיקון</button>
         </form>
-
-        <button id="lockDayBtn" class="btn btn-lock-day" type="button">שמירת היום (נעילה)</button>
       </section>
 
-      <button id="openSummaryBtn" class="btn btn-summary">סיכום יומי</button>
+      <section class="bottom-tabs" aria-label="טאבים תחתונים">
+        <div class="bottom-tabs-row">
+          <button id="openSummaryBtn" class="btn btn-summary" type="button">סיכום יומי</button>
+          <button id="lockDayBtn" class="btn btn-lock-day" type="button">נעילה</button>
+          <button id="toggleEditBtn" class="btn btn-edit" type="button">עריכה</button>
+        </div>
+        <p id="tabsCapacityInfo" class="tabs-capacity-info"></p>
+      </section>
     </main>
 
     <div id="cryOverlay" class="cry-overlay" aria-hidden="true">😭</div>
@@ -92,6 +106,10 @@
               <th>אחוז הצלחה</th>
               <th>שעות עבודה</th>
               <th>שעות בעל הבית</th>
+              <th>אינטרנט 15</th>
+              <th>מגדיל טווח 15</th>
+              <th>טלוויזיה 15</th>
+              <th>שיחות לשעה</th>
             </tr>
           </thead>
           <tbody id="summaryTableBody"></tbody>

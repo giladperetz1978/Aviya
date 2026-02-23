@@ -1,19 +1,26 @@
 const STORAGE_KEY = "aviya-shift-tracker-v1";
+const MAX_SHIFT_HOURS_DISPLAY = 12;
 
 const elements = {
   currentDate: document.getElementById("currentDate"),
   successBtn: document.getElementById("successBtn"),
   failBtn: document.getElementById("failBtn"),
-  shiftStartBtn: document.getElementById("shiftStartBtn"),
-  shiftEndBtn: document.getElementById("shiftEndBtn"),
-  crazyStartBtn: document.getElementById("crazyStartBtn"),
-  crazyEndBtn: document.getElementById("crazyEndBtn"),
+  shiftToggleBtn: document.getElementById("shiftToggleBtn"),
+  crazyToggleBtn: document.getElementById("crazyToggleBtn"),
+  internet15Btn: document.getElementById("internet15Btn"),
+  range15Btn: document.getElementById("range15Btn"),
+  tv15Btn: document.getElementById("tv15Btn"),
+  callsPerHourBtn: document.getElementById("callsPerHourBtn"),
   totalCount: document.getElementById("totalCount"),
   successCount: document.getElementById("successCount"),
   failCount: document.getElementById("failCount"),
   successRate: document.getElementById("successRate"),
   workHours: document.getElementById("workHours"),
   crazyHours: document.getElementById("crazyHours"),
+  internet15Count: document.getElementById("internet15Count"),
+  range15Count: document.getElementById("range15Count"),
+  tv15Count: document.getElementById("tv15Count"),
+  callsByHourGrid: document.getElementById("callsByHourGrid"),
   toggleEditBtn: document.getElementById("toggleEditBtn"),
   editForm: document.getElementById("editForm"),
   editSuccess: document.getElementById("editSuccess"),
@@ -27,7 +34,8 @@ const elements = {
   summaryDialog: document.getElementById("summaryDialog"),
   monthPicker: document.getElementById("monthPicker"),
   summaryTableBody: document.getElementById("summaryTableBody"),
-  summaryTableFoot: document.getElementById("summaryTableFoot")
+  summaryTableFoot: document.getElementById("summaryTableFoot"),
+  tabsCapacityInfo: document.getElementById("tabsCapacityInfo")
 };
 
 const now = new Date();
@@ -40,6 +48,7 @@ elements.monthPicker.value = `${now.getFullYear()}-${String(now.getMonth() + 1).
 bindEvents();
 refreshUI();
 setInterval(refreshUI, 1000);
+window.addEventListener("resize", updateTabsCapacityInfo);
 
 function bindEvents() {
   elements.successBtn.addEventListener("click", () => {
@@ -66,38 +75,25 @@ function bindEvents() {
     refreshUI();
   });
 
-  elements.shiftStartBtn.addEventListener("click", () => {
+  elements.internet15Btn.addEventListener("click", () => {
+    incrementSalesCounter("internet15");
+  });
+
+  elements.range15Btn.addEventListener("click", () => {
+    incrementSalesCounter("range15");
+  });
+
+  elements.tv15Btn.addEventListener("click", () => {
+    incrementSalesCounter("tv15");
+  });
+
+  elements.callsPerHourBtn.addEventListener("click", () => {
     const day = getTodayRecord();
     if (day.locked) {
       alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
       return;
     }
-    if (day.shiftStartTs) {
-      alert("משמרת כבר התחילה.");
-      return;
-    }
-    day.shiftStartTs = Date.now();
-    saveState();
-    refreshUI();
-  });
 
-  elements.shiftEndBtn.addEventListener("click", () => {
-    if (getTodayRecord().locked) {
-      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
-      return;
-    }
-    if (!confirm("לסיים יום עבודה?")) {
-      return;
-    }
-    endShiftForToday();
-  });
-
-  elements.crazyStartBtn.addEventListener("click", () => {
-    const day = getTodayRecord();
-    if (day.locked) {
-      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
-      return;
-    }
     if (!day.shiftStartTs) {
       const startShift = confirm("אין משמרת פעילה. להתחיל משמרת עכשיו?");
       if (!startShift) {
@@ -106,25 +102,62 @@ function bindEvents() {
       day.shiftStartTs = Date.now();
     }
 
-    if (day.crazyStartTs) {
-      alert("'בעל הבית השתגע' כבר פעיל.");
+    const hourNumber = getCurrentShiftHourNumber(day);
+    if (!hourNumber) {
+      alert("ניתן לספור שיחות לשעה רק עד 12 שעות עבודה.");
       return;
+    }
+    day.callsByHour[hourNumber] = (day.callsByHour[hourNumber] || 0) + 1;
+    saveState();
+    refreshUI();
+  });
+
+  elements.shiftToggleBtn.addEventListener("click", () => {
+    const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
+
+    if (day.shiftStartTs) {
+      if (!confirm("לסיים משמרת?")) {
+        return;
+      }
+      endShiftForToday();
+      return;
+    }
+
+    day.shiftStartTs = Date.now();
+    saveState();
+    refreshUI();
+  });
+
+  elements.crazyToggleBtn.addEventListener("click", () => {
+    const day = getTodayRecord();
+    if (day.locked) {
+      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+      return;
+    }
+
+    if (day.crazyStartTs) {
+      if (!confirm("לסיים 'בעל הבית השתגע'?")) {
+        return;
+      }
+      endCrazyForToday();
+      return;
+    }
+
+    if (!day.shiftStartTs) {
+      const startShift = confirm("אין משמרת פעילה. להתחיל משמרת עכשיו?");
+      if (!startShift) {
+        return;
+      }
+      day.shiftStartTs = Date.now();
     }
 
     day.crazyStartTs = Date.now();
     saveState();
     refreshUI();
-  });
-
-  elements.crazyEndBtn.addEventListener("click", () => {
-    if (getTodayRecord().locked) {
-      alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
-      return;
-    }
-    if (!confirm("לסיים 'בעל הבית השתגע' וגם לסיים את יום העבודה?")) {
-      return;
-    }
-    endCrazyAndCloseDay();
   });
 
   elements.toggleEditBtn.addEventListener("click", () => {
@@ -240,6 +273,10 @@ function ensureDay(dateKey) {
     state.days[dateKey] = {
       success: 0,
       fail: 0,
+      internet15: 0,
+      range15: 0,
+      tv15: 0,
+      callsByHour: {},
       shiftDurationMs: 0,
       crazyDurationMs: 0,
       shiftStartTs: null,
@@ -252,6 +289,18 @@ function ensureDay(dateKey) {
     const day = state.days[dateKey];
     if (typeof day.locked !== "boolean") {
       day.locked = false;
+    }
+    if (!Number.isFinite(day.internet15)) {
+      day.internet15 = 0;
+    }
+    if (!Number.isFinite(day.range15)) {
+      day.range15 = 0;
+    }
+    if (!Number.isFinite(day.tv15)) {
+      day.tv15 = 0;
+    }
+    if (!day.callsByHour || typeof day.callsByHour !== "object") {
+      day.callsByHour = {};
     }
     if (!("lockedAt" in day)) {
       day.lockedAt = null;
@@ -287,14 +336,30 @@ function refreshUI() {
 
   elements.workHours.textContent = formatDuration(day.shiftDurationMs + extraShiftMs);
   elements.crazyHours.textContent = formatDuration(day.crazyDurationMs + extraCrazyMs);
+  elements.internet15Count.textContent = String(day.internet15 || 0);
+  elements.range15Count.textContent = String(day.range15 || 0);
+  elements.tv15Count.textContent = String(day.tv15 || 0);
+  elements.callsByHourGrid.innerHTML = renderCallsByHourGrid(day.callsByHour);
 
   const isLocked = !!day.locked;
+  const isShiftActive = !!day.shiftStartTs;
+  const isCrazyActive = !!day.crazyStartTs;
+
+  elements.shiftToggleBtn.textContent = isShiftActive ? "סוף משמרת" : "תחילת משמרת";
+  elements.crazyToggleBtn.textContent = isCrazyActive ? "סיום בעל הבית השתגע" : "תחילת בעל הבית השתגע";
+  elements.shiftToggleBtn.classList.toggle("btn-shift-start", !isShiftActive);
+  elements.shiftToggleBtn.classList.toggle("btn-shift-end", isShiftActive);
+  elements.crazyToggleBtn.classList.toggle("btn-crazy-start", !isCrazyActive);
+  elements.crazyToggleBtn.classList.toggle("btn-crazy-end", isCrazyActive);
+
   elements.successBtn.disabled = isLocked;
   elements.failBtn.disabled = isLocked;
-  elements.shiftStartBtn.disabled = isLocked;
-  elements.shiftEndBtn.disabled = isLocked;
-  elements.crazyStartBtn.disabled = isLocked;
-  elements.crazyEndBtn.disabled = isLocked;
+  elements.internet15Btn.disabled = isLocked;
+  elements.range15Btn.disabled = isLocked;
+  elements.tv15Btn.disabled = isLocked;
+  elements.callsPerHourBtn.disabled = isLocked;
+  elements.shiftToggleBtn.disabled = isLocked;
+  elements.crazyToggleBtn.disabled = isLocked;
   elements.toggleEditBtn.disabled = isLocked;
   elements.applyEditBtn.disabled = isLocked;
 
@@ -304,9 +369,11 @@ function refreshUI() {
     elements.lockDayBtn.textContent = "היום נשמר וננעל";
     elements.lockDayBtn.disabled = true;
   } else {
-    elements.lockDayBtn.textContent = "שמירת היום (נעילה)";
+    elements.lockDayBtn.textContent = "נעילה";
     elements.lockDayBtn.disabled = false;
   }
+
+  updateTabsCapacityInfo();
 }
 
 function endShiftForToday() {
@@ -329,27 +396,38 @@ function endShiftForToday() {
   refreshUI();
 }
 
-function endCrazyAndCloseDay() {
+function endCrazyForToday() {
   const day = getTodayRecord();
-  if (!day.crazyStartTs && !day.shiftStartTs) {
-    alert("אין זמן פעיל לסיום.");
+  if (!day.crazyStartTs) {
+    alert("'בעל הבית השתגע' לא פעיל כרגע.");
     return;
   }
 
   const nowTs = Date.now();
-
-  if (day.crazyStartTs) {
-    day.crazyDurationMs += nowTs - day.crazyStartTs;
-    day.crazyStartTs = null;
-  }
-
-  if (day.shiftStartTs) {
-    day.shiftDurationMs += nowTs - day.shiftStartTs;
-    day.shiftStartTs = null;
-  }
+  day.crazyDurationMs += nowTs - day.crazyStartTs;
+  day.crazyStartTs = null;
 
   saveState();
   refreshUI();
+}
+
+function updateTabsCapacityInfo() {
+  if (!elements.tabsCapacityInfo) {
+    return;
+  }
+
+  const tabsRow = document.querySelector(".bottom-tabs-row");
+  if (!tabsRow) {
+    elements.tabsCapacityInfo.textContent = "";
+    return;
+  }
+
+  const minTabWidth = 90;
+  const maxTabsInRow = Math.max(0, Math.floor(tabsRow.clientWidth / minTabWidth));
+  const currentTabs = tabsRow.querySelectorAll("button").length;
+  const remainingTabs = Math.max(0, maxTabsInRow - currentTabs);
+
+  elements.tabsCapacityInfo.textContent = `נשאר מקום לעוד ${remainingTabs} טאבים בשורה התחתונה`;
 }
 
 function formatDuration(ms) {
@@ -376,6 +454,49 @@ function parseDurationText(text) {
   }
 
   return ((hours * 60 + minutes) * 60 + seconds) * 1000;
+}
+
+function getCurrentShiftHourNumber(day) {
+  const elapsedMs = day.shiftDurationMs + (day.shiftStartTs ? Date.now() - day.shiftStartTs : 0);
+  const hourNumber = Math.floor(elapsedMs / 3600000) + 1;
+  return hourNumber <= MAX_SHIFT_HOURS_DISPLAY ? hourNumber : null;
+}
+
+function incrementSalesCounter(fieldName) {
+  const day = getTodayRecord();
+  if (day.locked) {
+    alert("היום נשמר וננעל, לא ניתן לשנות נתונים.");
+    return;
+  }
+
+  day[fieldName] = (day[fieldName] || 0) + 1;
+  saveState();
+  refreshUI();
+}
+
+function formatCallsByHour(callsByHour) {
+  const entries = Object.entries(callsByHour || {})
+    .map(([hour, count]) => [Number(hour), Number(count)])
+    .filter(([hour, count]) => Number.isFinite(hour) && Number.isFinite(count))
+    .sort((a, b) => a[0] - b[0]);
+
+  if (entries.length === 0) {
+    return "אין נתונים";
+  }
+
+  return entries.map(([hour, count]) => `שעה ${hour}: ${count}`).join(" | ");
+}
+
+function renderCallsByHourGrid(callsByHour) {
+  const safeCalls = callsByHour || {};
+  const chips = [];
+
+  for (let hour = 1; hour <= MAX_SHIFT_HOURS_DISPLAY; hour += 1) {
+    const count = Number(safeCalls[hour]) || 0;
+    chips.push(`<span class="hour-chip">H${hour}: ${count}</span>`);
+  }
+
+  return chips.join("");
 }
 
 function loadEditFormFromDay(day) {
@@ -408,8 +529,10 @@ function showCryOverlay() {
 }
 
 function renderSummaryTable(monthValue) {
+  const monthlyColumnCount = 11;
+
   if (!monthValue || !monthValue.includes("-")) {
-    elements.summaryTableBody.innerHTML = `<tr><td colspan="7">בחרי חודש להצגה</td></tr>`;
+    elements.summaryTableBody.innerHTML = `<tr><td colspan="${monthlyColumnCount}">בחרי חודש להצגה</td></tr>`;
     elements.summaryTableFoot.innerHTML = "";
     return;
   }
@@ -419,7 +542,7 @@ function renderSummaryTable(monthValue) {
   const month = Number(monthStr);
 
   if (Number.isNaN(year) || Number.isNaN(month)) {
-    elements.summaryTableBody.innerHTML = `<tr><td colspan="7">בחירת חודש לא תקינה</td></tr>`;
+    elements.summaryTableBody.innerHTML = `<tr><td colspan="${monthlyColumnCount}">בחירת חודש לא תקינה</td></tr>`;
     elements.summaryTableFoot.innerHTML = "";
     return;
   }
@@ -432,7 +555,7 @@ function renderSummaryTable(monthValue) {
     .sort((a, b) => a[0].localeCompare(b[0]));
 
   if (rows.length === 0) {
-    elements.summaryTableBody.innerHTML = `<tr><td colspan="7">אין נתונים לחודש זה</td></tr>`;
+    elements.summaryTableBody.innerHTML = `<tr><td colspan="${monthlyColumnCount}">אין נתונים לחודש זה</td></tr>`;
     elements.summaryTableFoot.innerHTML = "";
     return;
   }
@@ -442,6 +565,9 @@ function renderSummaryTable(monthValue) {
   let sumFail = 0;
   let sumWorkMs = 0;
   let sumCrazyMs = 0;
+  let sumInternet15 = 0;
+  let sumRange15 = 0;
+  let sumTv15 = 0;
 
   elements.summaryTableBody.innerHTML = rows
     .map(([date, day]) => {
@@ -453,12 +579,18 @@ function renderSummaryTable(monthValue) {
 
       const dayWorkMs = day.shiftDurationMs + openShiftMs;
       const dayCrazyMs = day.crazyDurationMs + openCrazyMs;
+      const dayInternet15 = day.internet15 || 0;
+      const dayRange15 = day.range15 || 0;
+      const dayTv15 = day.tv15 || 0;
 
       sumTotal += total;
       sumSuccess += day.success;
       sumFail += day.fail;
       sumWorkMs += dayWorkMs;
       sumCrazyMs += dayCrazyMs;
+      sumInternet15 += dayInternet15;
+      sumRange15 += dayRange15;
+      sumTv15 += dayTv15;
 
       return `
         <tr>
@@ -469,6 +601,10 @@ function renderSummaryTable(monthValue) {
           <td>${rate}%</td>
           <td>${formatDuration(dayWorkMs)}</td>
           <td>${formatDuration(dayCrazyMs)}</td>
+          <td>${dayInternet15}</td>
+          <td>${dayRange15}</td>
+          <td>${dayTv15}</td>
+          <td>${formatCallsByHour(day.callsByHour)}</td>
         </tr>
       `;
     })
@@ -485,6 +621,10 @@ function renderSummaryTable(monthValue) {
       <td>${monthRate}%</td>
       <td>${formatDuration(sumWorkMs)}</td>
       <td>${formatDuration(sumCrazyMs)}</td>
+      <td>${sumInternet15}</td>
+      <td>${sumRange15}</td>
+      <td>${sumTv15}</td>
+      <td>-</td>
     </tr>
   `;
 }
