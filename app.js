@@ -32,8 +32,8 @@ const elements = {
 };
 
 const CHARACTERS = {
-  BART: "https://upload.wikimedia.org/wikipedia/en/a/aa/Bart_Simpson_200px.png",
-  HOMER: "https://upload.wikimedia.org/wikipedia/en/0/02/Homer_Simpson_200px.png"
+  BART: "https://i.imgur.com/vHEx3e8.png",
+  HOMER: "https://i.imgur.com/fLToZon.png"
 };
 
 const now = new Date();
