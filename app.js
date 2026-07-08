@@ -32,8 +32,8 @@ const elements = {
 };
 
 const CHARACTERS = {
-  BART: "https://www.pngall.com/wp-content/uploads/2016/06/Bart-Simpson-PNG-Clipart.png",
-  HOMER: "https://www.pngall.com/wp-content/uploads/2016/06/Homer-Simpson-PNG-File.png"
+  BART: "https://upload.wikimedia.org/wikipedia/en/a/aa/Bart_Simpson_200px.png",
+  HOMER: "https://upload.wikimedia.org/wikipedia/en/0/02/Homer_Simpson_200px.png"
 };
 
 const now = new Date();
@@ -344,8 +344,7 @@ function showCharacterOverlay(type) {
 
 function playSound(soundType) {
   if (soundType === "homer") {
-    elements.homerSound.currentTime = 0;
-    elements.homerSound.play().catch(e => console.warn("Audio play failed", e));
+    // Sound disabled per user request
     return;
   }
   if (!audioContext) return;
