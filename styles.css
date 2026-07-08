@@ -41,50 +41,58 @@ h1 {
   font-weight: 600;
 }
 
-.button-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
+.main-actions {
+  margin-top: 20px;
 }
 
-.toggle-row {
-  direction: ltr;
-}
-
-.toggle-row .btn {
-  direction: rtl;
-}
-
-.sales-section {
+.sales-input-section {
   background: var(--card);
   border-radius: 14px;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 16px;
+  margin-top: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
-.sales-title {
-  margin: 0 0 8px;
-  text-align: right;
-  font-size: 1rem;
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.sales-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.btn {
-  border: none;
-  border-radius: 14px;
-  padding: 14px 10px;
-  color: #fff;
-  font-size: 1rem;
+.input-group label {
   font-weight: 700;
-  cursor: pointer;
-  min-height: 52px;
+  font-size: 1.1rem;
+}
+
+.input-group input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 1.1rem;
+}
+
+.sales-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 250px;
+  justify-content: flex-end;
+}
+
+.sale-pill {
+  background: #e2e8f0;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.summary {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .btn:active {

@@ -3,32 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>אביה המשמרת</title>
+    <title>אביה המבטחת</title>
     <link rel="stylesheet" href="styles.css?v=6" />
   </head>
   <body>
     <main class="app">
-      <h1>אביה המשמרת</h1>
-      <h2 class="subtitle">כי כל שימור לא מוצלח, זורק לי כסף לפח</h2>
+      <h1>אביה המבטחת</h1>
+      <h2 class="subtitle">הביטוח שומר לנו על התחת</h2>
       <p id="currentDate" class="current-date"></p>
 
-      <section class="button-row retention-row">
-        <button id="successBtn" class="btn btn-success">שימור מוצלח</button>
-        <button id="failBtn" class="btn btn-fail">שימור לא מוצלח</button>
+      <section class="button-row main-actions">
+        <button id="agentAppointmentBtn" class="btn btn-success">מינוי סוכן 30%</button>
+        <button id="surveyBtn" class="btn btn-fail">סקירה 100%</button>
       </section>
 
-      <section class="button-row toggle-row">
-        <button id="crazyToggleBtn" class="btn btn-crazy-start">תחילת בעל הבית השתגע</button>
-        <button id="shiftToggleBtn" class="btn btn-shift-start">תחילת משמרת</button>
-      </section>
-
-      <section class="sales-section" aria-label="מכר">
-        <h3 class="sales-title">מכר</h3>
-        <div class="sales-tabs">
-          <button id="internet15Btn" class="btn btn-sales" type="button">אינטרנט 15</button>
-          <button id="range15Btn" class="btn btn-sales" type="button">מגדיל טווח 15</button>
-          <button id="tv15Btn" class="btn btn-sales" type="button">טלוויזיה 15</button>
-          <button id="callsPerHourBtn" class="btn btn-sales" type="button">מספר שיחות לשעה</button>
+      <section class="sales-input-section">
+        <div class="input-group">
+          <label for="saleAmountInput">הזן סכום מכירה:</label>
+          <input id="saleAmountInput" type="number" step="0.01" inputmode="decimal" placeholder="סכום..." />
+          <button id="addSaleBtn" class="btn btn-sales">הוסף</button>
         </div>
       </section>
 
@@ -36,38 +29,22 @@
         <h2 class="summary-title">סיכום יומי</h2>
         <table class="summary-table" aria-label="סיכום יומי">
           <tbody>
-            <tr><td>סה"כ שימורים</td><td><strong id="totalCount">0</strong></td></tr>
-            <tr><td>שימורים מוצלחים</td><td><strong id="successCount">0</strong></td></tr>
-            <tr><td>שימורים לא מוצלחים</td><td><strong id="failCount">0</strong></td></tr>
-            <tr><td>אחוזי הצלחה</td><td><strong id="successRate">0%</strong></td></tr>
-            <tr><td>שעות עבודה</td><td><strong id="workHours">00:00:00</strong></td></tr>
-            <tr><td>שעות בעל הבית השתגע</td><td><strong id="crazyHours">00:00:00</strong></td></tr>
-            <tr><td>מכר אינטרנט 15</td><td><strong id="internet15Count">0</strong></td></tr>
-            <tr><td>מכר מגדיל טווח 15</td><td><strong id="range15Count">0</strong></td></tr>
-            <tr><td>מכר טלוויזיה 15</td><td><strong id="tv15Count">0</strong></td></tr>
-            <tr><td>שיחות לפי שעה</td><td><div id="callsByHourGrid" class="calls-by-hour-grid" aria-label="שיחות לפי שעה"></div></td></tr>
+            <tr><td>מינוי סוכן 30%</td><td><strong id="agentAppointmentCount">0</strong></td></tr>
+            <tr><td>סקירה 100%</td><td><strong id="surveyCount">0</strong></td></tr>
+            <tr><td>סה"כ סכום מכירות</td><td><strong id="totalSalesAmount">0</strong></td></tr>
+            <tr><td>פירוט מכירות</td><td><div id="salesList" class="sales-list"></div></td></tr>
           </tbody>
         </table>
 
         <form id="editForm" class="edit-form hidden">
           <label>
-            שימורים מוצלחים
-            <input id="editSuccess" type="number" min="0" step="1" inputmode="numeric" required />
+            מינוי סוכן 30%
+            <input id="editAgentAppointment" type="number" min="0" step="1" inputmode="numeric" required />
           </label>
 
           <label>
-            שימורים לא מוצלחים
-            <input id="editFail" type="number" min="0" step="1" inputmode="numeric" required />
-          </label>
-
-          <label>
-            שעות עבודה (HH:MM:SS)
-            <input id="editWork" type="text" placeholder="08:30:00" required />
-          </label>
-
-          <label>
-            שעות בעל הבית השתגע (HH:MM:SS)
-            <input id="editCrazy" type="text" placeholder="01:15:00" required />
+            סקירה 100%
+            <input id="editSurvey" type="number" min="0" step="1" inputmode="numeric" required />
           </label>
 
           <button id="applyEditBtn" class="btn btn-apply-edit" type="submit">שמירת תיקון</button>
@@ -83,12 +60,6 @@
         <p id="tabsCapacityInfo" class="tabs-capacity-info"></p>
       </section>
     </main>
-
-    <div id="cryOverlay" class="cry-overlay" aria-hidden="true">😭</div>
-
-    <div id="moneyAnimationOverlay" class="money-animation-overlay" aria-hidden="true">
-      <span class="money-text">15ש"ח</span>
-    </div>
 
     <audio id="soundEffect" style="display: none;"></audio>
 
@@ -106,16 +77,9 @@
           <thead>
             <tr>
               <th>תאריך</th>
-              <th>סה"כ</th>
-              <th>מוצלחים</th>
-              <th>לא מוצלחים</th>
-              <th>אחוז הצלחה</th>
-              <th>שעות עבודה</th>
-              <th>שעות בעל הבית</th>
-              <th>אינטרנט 15</th>
-              <th>מגדיל טווח 15</th>
-              <th>טלוויזיה 15</th>
-              <th>שיחות לשעה</th>
+              <th>מינוי סוכן 30%</th>
+              <th>סקירה 100%</th>
+              <th>סה"כ סכום מכירות</th>
             </tr>
           </thead>
           <tbody id="summaryTableBody"></tbody>
