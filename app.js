@@ -28,7 +28,8 @@ const elements = {
   soundEffect: document.getElementById("soundEffect"),
   homerSound: document.getElementById("homerSound"),
   characterOverlay: document.getElementById("characterOverlay"),
-  characterImg: document.getElementById("characterImg")
+  characterImg: document.getElementById("characterImg"),
+  moneyRain: document.getElementById("moneyRain")
 };
 
 const CHARACTERS = {
@@ -92,6 +93,7 @@ function bindEvents() {
     elements.saleAmountInput.value = "";
     saveState();
     playSound("money");
+    showMoneyRain();
     launchConfetti();
     refreshUI();
   });
@@ -339,6 +341,27 @@ function showCharacterOverlay(type) {
   elements.characterOverlay.classList.add("show");
   setTimeout(() => {
     elements.characterOverlay.classList.remove("show");
+  }, 1500);
+}
+
+function showMoneyRain() {
+  elements.moneyRain.innerHTML = "";
+  elements.moneyRain.classList.add("show");
+  
+  const count = 50;
+  for (let i = 0; i < count; i++) {
+    const dollar = document.createElement("div");
+    dollar.className = "dollar";
+    dollar.textContent = "💵";
+    dollar.style.left = Math.random() * 100 + "vw";
+    dollar.style.animationDuration = (Math.random() * 1 + 0.5) + "s";
+    dollar.style.animationDelay = (Math.random() * 0.5) + "s";
+    elements.moneyRain.appendChild(dollar);
+  }
+
+  setTimeout(() => {
+    elements.moneyRain.classList.remove("show");
+    elements.moneyRain.innerHTML = "";
   }, 1500);
 }
 

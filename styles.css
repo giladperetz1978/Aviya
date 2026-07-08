@@ -112,6 +112,31 @@ h1 {
   100% { transform: scale(1); opacity: 1; }
 }
 
+.money-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4000;
+  display: none;
+}
+
+.money-rain.show {
+  display: block;
+}
+
+.dollar {
+  position: absolute;
+  font-size: 2rem;
+  top: -50px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
 .main-actions {
   margin-top: 20px;
 }
