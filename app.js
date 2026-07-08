@@ -25,7 +25,15 @@ const elements = {
   monthPicker: document.getElementById("monthPicker"),
   summaryTableBody: document.getElementById("summaryTableBody"),
   summaryTableFoot: document.getElementById("summaryTableFoot"),
-  soundEffect: document.getElementById("soundEffect")
+  soundEffect: document.getElementById("soundEffect"),
+  homerSound: document.getElementById("homerSound"),
+  characterOverlay: document.getElementById("characterOverlay"),
+  characterImg: document.getElementById("characterImg")
+};
+
+const CHARACTERS = {
+  BART: "https://www.pngall.com/wp-content/uploads/2016/06/Bart-Simpson-PNG-Clipart.png",
+  HOMER: "https://www.pngall.com/wp-content/uploads/2016/06/Homer-Simpson-PNG-File.png"
 };
 
 const now = new Date();
@@ -50,6 +58,7 @@ function bindEvents() {
     day.agentAppointment += 1;
     saveState();
     playSound("money");
+    showCharacterOverlay("BART");
     launchConfetti();
     refreshUI();
   });
@@ -62,7 +71,8 @@ function bindEvents() {
     }
     day.survey += 1;
     saveState();
-    playSound("money");
+    playSound("homer");
+    showCharacterOverlay("HOMER");
     launchConfetti();
     refreshUI();
   });
@@ -324,7 +334,20 @@ function initAudioContext() {
   }
 }
 
+function showCharacterOverlay(type) {
+  elements.characterImg.src = CHARACTERS[type];
+  elements.characterOverlay.classList.add("show");
+  setTimeout(() => {
+    elements.characterOverlay.classList.remove("show");
+  }, 1500);
+}
+
 function playSound(soundType) {
+  if (soundType === "homer") {
+    elements.homerSound.currentTime = 0;
+    elements.homerSound.play().catch(e => console.warn("Audio play failed", e));
+    return;
+  }
   if (!audioContext) return;
 
   try {
