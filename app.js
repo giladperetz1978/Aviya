@@ -32,8 +32,8 @@ const elements = {
 };
 
 const CHARACTERS = {
-  BART: "https://i.imgur.com/vHEx3e8.png",
-  HOMER: "https://i.imgur.com/fLToZon.png"
+  BART: "bart.png",
+  HOMER: "homer.png"
 };
 
 const now = new Date();
