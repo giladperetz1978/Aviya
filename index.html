@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>אביה המבטחת</title>
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=7" />
   </head>
   <body>
     <main class="app">
@@ -12,52 +12,109 @@
       <h2 class="subtitle">הביטוח שומר לנו על התחת</h2>
       <p id="currentDate" class="current-date"></p>
 
-      <section class="button-row main-actions">
-        <button id="agentAppointmentBtn" class="btn btn-success">מינוי סוכן 30%</button>
-        <button id="surveyBtn" class="btn btn-fail">סקירה 100%</button>
-      </section>
+      <!-- שני טאבים ראשיים בחלק העליון -->
+      <nav class="main-tabs" aria-label="כרטיסיות ראשיות">
+        <button id="tabSaleBtn" class="main-tab-btn active" type="button">מכירה 🛒</button>
+        <button id="tabReportsBtn" class="main-tab-btn" type="button">דוחות 📊</button>
+      </nav>
 
-      <section class="sales-input-section">
-        <div class="input-group">
-          <label for="saleAmountInput">הזן סכום מכירה:</label>
-          <input id="saleAmountInput" type="number" step="0.01" inputmode="decimal" placeholder="סכום..." />
-          <button id="addSaleBtn" class="btn btn-sales">הוסף</button>
+      <!-- תוכן טאב מכירה -->
+      <section id="saleTabContent" class="tab-pane active">
+        <div class="card sale-card">
+          <h3>הזנת מכירה חדשה</h3>
+          
+          <div class="input-field">
+            <label for="customerNameInput">שם הלקוח:</label>
+            <input id="customerNameInput" type="text" placeholder="הכנס שם לקוח..." />
+          </div>
+
+          <div class="input-field">
+            <label for="saleTypeSelect">סוג מכירה:</label>
+            <select id="saleTypeSelect">
+              <option value="agent">מינוי סוכן (30%)</option>
+              <option value="survey">סוקר (100%)</option>
+            </select>
+          </div>
+
+          <div class="input-field">
+            <label for="saleAmountInput">סכום מכירה (₪):</label>
+            <input id="saleAmountInput" type="number" step="0.01" inputmode="decimal" placeholder="הכנס סכום..." />
+          </div>
+
+          <div id="calculatedAmountPreview" class="calculated-preview">
+            סה"כ מחושב מועבר לזיכוי: <strong>0 ₪</strong>
+          </div>
+
+          <button id="addSaleBtn" class="btn btn-sales btn-submit-sale">רשום מכירה</button>
+        </div>
+
+        <!-- סיכום יומי מקוצר בלשונית מכירות -->
+        <div class="card daily-quick-summary">
+          <h3>סיכום מהיר להיום</h3>
+          <div class="quick-stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">מינוי סוכן (30%)</span>
+              <span id="quickAgentCount" class="stat-val">0</span>
+              <span id="quickAgentSum" class="stat-subval">0 ₪</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">סוקר (100%)</span>
+              <span id="quickSurveyCount" class="stat-val">0</span>
+              <span id="quickSurveySum" class="stat-subval">0 ₪</span>
+            </div>
+            <div class="stat-box total-box">
+              <span class="stat-label">סה"כ מזוכים להיום</span>
+              <span id="quickTotalSum" class="stat-val">0 ₪</span>
+            </div>
+          </div>
+          <button id="lockDayBtn" class="btn btn-lock-day" type="button">נעילת יום</button>
         </div>
       </section>
 
-      <section class="summary" aria-live="polite">
-        <h2 class="summary-title">סיכום יומי</h2>
-        <table class="summary-table" aria-label="סיכום יומי">
-          <tbody>
-            <tr><td>מינוי סוכן 30%</td><td><strong id="agentAppointmentCount">0</strong></td></tr>
-            <tr><td>סקירה 100%</td><td><strong id="surveyCount">0</strong></td></tr>
-            <tr><td>סה"כ סכום מכירות</td><td><strong id="totalSalesAmount">0</strong></td></tr>
-            <tr><td>פירוט מכירות</td><td><div id="salesList" class="sales-list"></div></td></tr>
-          </tbody>
-        </table>
+      <!-- תוכן טאב דוחות -->
+      <section id="reportsTabContent" class="tab-pane">
+        <div class="card reports-card">
+          <div class="reports-filter-row">
+            <label for="reportMonthPicker">בחירת חודש לדוח:</label>
+            <input id="reportMonthPicker" type="month" />
+          </div>
 
-        <form id="editForm" class="edit-form hidden">
-          <label>
-            מינוי סוכן 30%
-            <input id="editAgentAppointment" type="number" min="0" step="1" inputmode="numeric" required />
-          </label>
+          <!-- סיכום חודשי -->
+          <div class="monthly-summary-banner">
+            <div class="banner-item">
+              <span>סה"כ סוכנים חודשי (30%):</span>
+              <strong id="reportMonthlyAgentSum">0 ₪</strong>
+            </div>
+            <div class="banner-item">
+              <span>סה"כ סוקר חודשי (100%):</span>
+              <strong id="reportMonthlySurveySum">0 ₪</strong>
+            </div>
+            <div class="banner-item total-item">
+              <span>סה"כ חודשי כולל:</span>
+              <strong id="reportMonthlyTotalSum">0 ₪</strong>
+            </div>
+          </div>
 
-          <label>
-            סקירה 100%
-            <input id="editSurvey" type="number" min="0" step="1" inputmode="numeric" required />
-          </label>
-
-          <button id="applyEditBtn" class="btn btn-apply-edit" type="submit">שמירת תיקון</button>
-        </form>
-      </section>
-
-      <section class="bottom-tabs" aria-label="טאבים תחתונים">
-        <div class="bottom-tabs-row">
-          <button id="openSummaryBtn" class="btn btn-summary" type="button">סיכום יומי</button>
-          <button id="lockDayBtn" class="btn btn-lock-day" type="button">נעילה</button>
-          <button id="toggleEditBtn" class="btn btn-edit" type="button">עריכה</button>
+          <!-- טבלת פירוט כל המכירות -->
+          <h3>פירוט מכירות ודוחות</h3>
+          <div class="table-wrap">
+            <table class="reports-table">
+              <thead>
+                <tr>
+                  <th>תאריך وشעה</th>
+                  <th>שם הלקוח</th>
+                  <th>סוג מכירה</th>
+                  <th>סכום מקורי</th>
+                  <th>סכום מחושב</th>
+                  <th>פעולות</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody">
+                <!-- יתווסף דינמית -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <p id="tabsCapacityInfo" class="tabs-capacity-info"></p>
       </section>
     </main>
 
@@ -67,35 +124,7 @@
 
     <div id="moneyRain" class="money-rain" aria-hidden="true"></div>
 
-    <audio id="soundEffect" style="display: none;"></audio>
-    <audio id="homerSound" src="Homer Simpson - D'OH - QuickSounds.com.mp3" style="display: none;"></audio>
-
-    <dialog id="summaryDialog" class="summary-dialog">
-      <form method="dialog" class="dialog-header">
-        <h3>סיכום חודשי והיסטוריית סיכומים</h3>
-        <button class="close-btn" value="cancel">סגירה</button>
-      </form>
-
-      <label for="monthPicker">בחירת חודש:</label>
-      <input id="monthPicker" type="month" />
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>תאריך</th>
-              <th>מינוי סוכן 30%</th>
-              <th>סקירה 100%</th>
-              <th>סה"כ סכום מכירות</th>
-            </tr>
-          </thead>
-          <tbody id="summaryTableBody"></tbody>
-          <tfoot id="summaryTableFoot"></tfoot>
-        </table>
-      </div>
-    </dialog>
-
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <script src="app.js"></script>
+    <script src="app_clean.js"></script>
   </body>
 </html>

@@ -1,13 +1,16 @@
 :root {
   --bg: #009DDF; /* Simpson Sky Blue */
-  --card: rgba(255, 255, 255, 0.9);
+  --card: rgba(255, 255, 255, 0.95);
   --text: #172135;
   --simpson-yellow: #FFD90F;
+  --primary-btn: #0284c7;
+  --agent-color: #16a34a;
+  --survey-color: #dc2626;
 }
 
 * {
   box-sizing: border-box;
-  font-family: "Simpsonfont", "Segoe UI", Arial, sans-serif;
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
 }
 
 body {
@@ -16,39 +19,14 @@ body {
   background-size: 600px;
   color: var(--text);
   overflow-x: hidden;
-}
-
-.app::before {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('plant.png') no-repeat bottom center;
-  background-size: contain;
-  opacity: 0.3;
-  z-index: -1;
-  pointer-events: none;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  background: #4caf50;
-  z-index: -2;
+  direction: rtl;
 }
 
 .app {
-  max-width: 560px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 16px 16px 120px;
+  padding: 16px 16px 60px;
   min-height: 100dvh;
-  backdrop-filter: blur(2px);
 }
 
 h1 {
@@ -56,13 +34,13 @@ h1 {
   text-align: center;
   color: var(--simpson-yellow);
   text-shadow: 3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000;
-  font-size: 3rem;
+  font-size: 2.8rem;
 }
 
 .subtitle {
-  margin: 4px 0 12px;
+  margin: 4px 0 10px;
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #fff;
   font-weight: 700;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -70,15 +48,260 @@ h1 {
 
 .current-date {
   text-align: center;
-  margin: 8px 0 16px;
+  margin: 4px 0 16px;
   font-weight: 600;
   color: white;
   text-shadow: 1px 1px 2px black;
 }
 
-.btn-success { background: #1f9e41; border: 3px solid #000; }
-.btn-fail { background: #cf2b2b; border: 3px solid #000; }
-.btn-sales { background: #0369a1; border: 3px solid #000; }
+/* Main Tabs Navigation */
+.main-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.main-tab-btn {
+  flex: 1;
+  padding: 16px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  border: 3px solid #000;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #334155;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #000;
+  transition: all 0.15s ease;
+}
+
+.main-tab-btn.active {
+  background: var(--simpson-yellow);
+  color: #000;
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #000;
+}
+
+/* Card layout */
+.card {
+  background: var(--card);
+  border: 2px solid #000;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+  color: #0f172a;
+}
+
+/* Tab visibility */
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* Input Fields */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.input-field label {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.input-field input, .input-field select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid #cbd5e1;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+.input-field input:focus, .input-field select:focus {
+  border-color: #0284c7;
+}
+
+.calculated-preview {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #bae6fd;
+  font-size: 1.05rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 14px;
+  border: 2px solid #000;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #000;
+  transition: transform 0.1s;
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #000;
+}
+
+.btn-submit-sale {
+  background: #16a34a;
+  color: white;
+}
+
+.btn-lock-day {
+  background: #334155;
+  color: white;
+  margin-top: 14px;
+}
+
+/* Quick Stats */
+.quick-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-box.total-box {
+  grid-column: span 2;
+  background: #fef9c3;
+  border-color: #fde047;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.stat-subval {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+/* Reports Tab */
+.reports-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.reports-filter-row input {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid #cbd5e1;
+  font-size: 1rem;
+}
+
+.monthly-summary-banner {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.banner-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+}
+
+.banner-item.total-item {
+  border-top: 2px solid #cbd5e1;
+  padding-top: 8px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 0.95rem;
+}
+
+.reports-table th, .reports-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reports-table th {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-agent {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-survey {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-delete-sale {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px;
+}
 
 .character-overlay {
   position: fixed;
@@ -92,12 +315,38 @@ h1 {
 
 .character-overlay.show {
   display: grid;
-  animation: fadeIn 0.2s ease-out;
 }
 
 .character-overlay img {
   max-width: 80vw;
   max-height: 80vh;
+  object-fit: contain;
+}
+
+.money-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4000;
+  display: none;
+}
+
+.money-rain.show {
+  display: block;
+}
+
+.dollar {
+  position: absolute;
+  font-size: 2rem;
+  top: -50px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
   object-fit: contain;
   animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
